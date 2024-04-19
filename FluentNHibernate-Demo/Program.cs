@@ -14,13 +14,33 @@ namespace FluentNHibernate_Demo
             using var session = sessionFactory.OpenSession();
             using var transaction = session.BeginTransaction();
 
-            var employees = session.Query<Employee>();
-            var departments = session.Query<Department>();
+            S01_Structure_Of_The_Query(session);
+
+            S02_Parameter_Types(session);
 
             transaction.Commit();
 
 
             Console.ReadKey();
+        }
+
+        private static void S02_Parameter_Types(ISession session)
+        {
+
+        }
+
+        private static void S01_Structure_Of_The_Query(ISession session)
+        {
+            var employees = session.Query<Employee>().ToList();
+            employees.ForEach(e => Console.WriteLine(string.Concat(e.FirstName, " ", e.LastName)));
+
+            var department = session.Get<Department>(3);
+            var empsInDepartment = department.Employees
+                .AsQueryable()
+                .Where(e => e.Gender!.ToLower() == "male");
+
+            foreach (var emp in empsInDepartment)
+                Console.WriteLine($"{string.Concat(emp.FirstName, " ", emp.LastName)}  [{emp.JobTitle}]");
         }
 
         private static void CreateNewEmployee(ISession session)
